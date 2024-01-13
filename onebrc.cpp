@@ -218,21 +218,21 @@ int main(int argc, char** argv)
     }
 
     mmap_file file { file_descr { argv[1] } };
-    string_view text { file };
+    string_view input { file };
 
     const auto n_cpus = thread::hardware_concurrency();
-    const auto chunk_size = text.size() / n_cpus;
+    const auto chunk_size = input.size() / n_cpus;
 
     future<unordered_statistics> partial[n_cpus];
 
     for (unsigned i = 0; i < n_cpus - 1; ++i) {
-        const auto chunk_end = text.find_first_of('\n', chunk_size) + 1;
+        const auto chunk_end = input.find_first_of('\n', chunk_size) + 1;
         cerr << "Chunk " << (i + 1) << ", size " << chunk_end << endl;
-        partial[i] = async(launch::async, aggregate, text.substr(0, chunk_end));
-        text = text.substr(chunk_end);
+        partial[i] = async(launch::async, aggregate, input.substr(0, chunk_end));
+        input = input.substr(chunk_end);
     }
-    cerr << "Chunk " << n_cpus << ", size " << text.size() << endl;
-    partial[n_cpus - 1] = async(launch::async, aggregate, text);
+    cerr << "Chunk " << n_cpus << ", size " << input.size() << endl;
+    partial[n_cpus - 1] = async(launch::async, aggregate, input);
 
     ordered_statistics result;
 
