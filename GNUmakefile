@@ -1,4 +1,4 @@
-CXXFLAGS += -O3 -march=native -std=c++17
+CXXFLAGS += -O3 -g -march=native -std=c++17
 
 .PHONY: all clean
 
