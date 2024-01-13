@@ -96,10 +96,10 @@ inline pair<string_view, string_view> first_line(string_view s)
 //----------------------------------------------------------------------------
 // Statistics data structure.
 
-struct stats {
-    stats() = default;
+struct statistics {
+    statistics() = default;
 
-    stats(int64_t x)
+    statistics(int64_t x)
         : min { x }
         , max { x }
         , sum { x }
@@ -107,16 +107,16 @@ struct stats {
     {
     }
 
-    void update(const stats& other)
+    void update(const statistics& s)
     {
-        if (other.min < min) {
-            min = other.min;
+        if (s.min < min) {
+            min = s.min;
         }
-        if (other.max > max) {
-            max = other.max;
+        if (s.max > max) {
+            max = s.max;
         }
-        sum += other.sum;
-        n += other.n;
+        sum += s.sum;
+        n += s.n;
     }
 
     int64_t min { numeric_limits<int64_t>::max() };
@@ -125,7 +125,7 @@ struct stats {
     size_t n {};
 };
 
-ostream& operator<<(ostream& os, const stats& s)
+ostream& operator<<(ostream& os, const statistics& s)
 {
     return os << (s.min / 10.0) << '\t' << (s.max / 10.0) << '\t' << (s.sum / 10.0 / s.n);
 }
@@ -195,12 +195,12 @@ private:
 //----------------------------------------------------------------------------
 // Parse and process lines from text.
 
-using ordered_stats_map = map<string_view, stats>;
-using unordered_stats_map = unordered_map<string_view, stats>;
+using ordered_statistics = map<string_view, statistics>;
+using unordered_statistics = unordered_map<string_view, statistics>;
 
-unordered_stats_map process_stats(string_view text)
+unordered_statistics aggregate(string_view text)
 {
-    unordered_stats_map result(10000);
+    unordered_statistics result(10000);
 
     while (!text.empty()) {
         const auto [line, other_text] = first_line(text);
@@ -227,18 +227,18 @@ int main(int argc, char** argv)
     const auto n_cpus = thread::hardware_concurrency();
     const auto chunk_size = text.size() / n_cpus;
 
-    future<unordered_stats_map> partial[n_cpus];
+    future<unordered_statistics> partial[n_cpus];
 
     for (unsigned i = 0; i < n_cpus - 1; ++i) {
         const auto chunk_end = text.find_first_of('\n', chunk_size) + 1;
         cerr << "Chunk " << (i + 1) << ", size " << chunk_end << endl;
-        partial[i] = async(launch::async, process_stats, text.substr(0, chunk_end));
+        partial[i] = async(launch::async, aggregate, text.substr(0, chunk_end));
         text = text.substr(chunk_end);
     }
     cerr << "Chunk " << n_cpus << ", size " << text.size() << endl;
-    partial[n_cpus - 1] = async(launch::async, process_stats, text);
+    partial[n_cpus - 1] = async(launch::async, aggregate, text);
 
-    ordered_stats_map result;
+    ordered_statistics result;
 
     for (auto& part : partial) {
         for (const auto& item : part.get()) {
