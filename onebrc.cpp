@@ -194,15 +194,15 @@ private:
 using ordered_statistics = map<string_view, statistics>;
 using unordered_statistics = unordered_map<string_view, statistics>;
 
-unordered_statistics aggregate(string_view text)
+unordered_statistics aggregate(string_view input)
 {
     unordered_statistics result(1000);
 
-    while (!text.empty()) {
-        const auto [line, other_text] = first_line(text);
+    while (!input.empty()) {
+        const auto [line, other_lines] = first_line(input);
         const auto [name, value] = record(line);
         result[name].update(value);
-        text = other_text;
+        input = other_lines;
     }
 
     return result;
