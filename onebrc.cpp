@@ -83,8 +83,8 @@ inline pair<string_view, int64_t> record(string_view s)
 
 inline pair<string_view, string_view> first_line(string_view s)
 {
-    if (const auto p = s.find_first_of('\n'); p != string_view::npos) {
-        return make_pair(s.substr(0, p), s.substr(p + 1));
+    if (const auto i = s.find_first_of('\n'); i != string_view::npos) {
+        return make_pair(s.substr(0, i), s.substr(i + 1));
     } else {
         return make_pair(s, string_view());
     }
