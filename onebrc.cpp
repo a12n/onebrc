@@ -74,8 +74,11 @@ inline int64_t number(string_view s)
 
 inline pair<string_view, int64_t> record(string_view s)
 {
-    const auto p = s.find_first_of(';');
-    return make_pair(s.substr(0, p), number(s.substr(p + 1)));
+    if (const auto i = s.find_first_of(';'); i != string_view::npos) {
+        return make_pair(s.substr(0, i), number(s.substr(i + 1)));
+    } else {
+        throw invalid_argument(__FUNCTION__);
+    }
 }
 
 inline pair<string_view, string_view> next_line(string_view s)
