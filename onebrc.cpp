@@ -237,10 +237,11 @@ int main(int argc, char** argv)
 
     for (size_t i = 0; i < n_cpus - 1; ++i) {
         const auto chunk_end = text.find_first_of('\n', chunk_size) + 1;
-        cerr << "i " << i << ", chunk_end " << chunk_end << endl;
+        cerr << "chunk " << i << ", size " << chunk_end << endl;
         partial[i] = async(launch::async, process_stats, text.substr(0, chunk_end));
         text = text.substr(chunk_end);
     }
+    cerr << "chunk " << (n_cpus - 1) << ", size " << text.size() << endl;
     partial[n_cpus - 1] = async(launch::async, process_stats, text);
 
     ordered_stats_map result;
