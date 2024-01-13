@@ -81,7 +81,7 @@ inline pair<string_view, int64_t> record(string_view s)
     }
 }
 
-inline pair<string_view, string_view> next_line(string_view s)
+inline pair<string_view, string_view> first_line(string_view s)
 {
     if (const auto p = s.find_first_of('\n'); p != string_view::npos) {
         return make_pair(s.substr(0, p), s.substr(p + 1));
@@ -201,7 +201,7 @@ unordered_stats_map process_stats(string_view text)
     unordered_stats_map result;
 
     while (!text.empty()) {
-        const auto [line, other_text] = next_line(text);
+        const auto [line, other_text] = first_line(text);
         const auto [name, value] = record(line);
         result[name].update(value);
         text = other_text;
