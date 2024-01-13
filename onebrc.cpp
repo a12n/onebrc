@@ -44,6 +44,9 @@ using std::unordered_map;
 
 namespace {
 
+//----------------------------------------------------------------------------
+// Various parsing functions.
+
 inline int64_t digit(char c)
 {
     if (c < '0' || c > '9') {
@@ -91,6 +94,7 @@ inline pair<string_view, string_view> first_line(string_view s)
 }
 
 //----------------------------------------------------------------------------
+// Statistics data structure.
 
 struct stats {
     void update(int64_t x)
@@ -129,6 +133,7 @@ ostream& operator<<(ostream& os, const stats& s)
 }
 
 //----------------------------------------------------------------------------
+// Memory-mapped file contents.
 
 struct file_descr {
     friend struct mmap_file;
@@ -154,8 +159,6 @@ struct file_descr {
 private:
     int fd_ { -1 };
 };
-
-//----------------------------------------------------------------------------
 
 struct mmap_file {
     mmap_file(file_descr fd)
@@ -192,6 +195,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
+// Parse and process lines from text.
 
 using ordered_stats_map = map<string_view, stats>;
 using unordered_stats_map = unordered_map<string_view, stats>;
@@ -227,7 +231,7 @@ int main(int argc, char** argv)
 
     future<unordered_stats_map> partial[n_cpus];
 
-    for (size_t i = 0; i < n_cpus - 1; ++i) {
+    for (unsigned i = 0; i < n_cpus - 1; ++i) {
         const auto chunk_end = text.find_first_of('\n', chunk_size) + 1;
         cerr << "Chunk " << (i + 1) << ", size " << chunk_end << endl;
         partial[i] = async(launch::async, process_stats, text.substr(0, chunk_end));
@@ -238,8 +242,8 @@ int main(int argc, char** argv)
 
     ordered_stats_map result;
 
-    for (auto& r : partial) {
-        for (const auto& item : r.get()) {
+    for (auto& part : partial) {
+        for (const auto& item : part.get()) {
             if (auto it = result.find(item.first); it != result.end()) {
                 it->second.update(item.second);
             } else {
