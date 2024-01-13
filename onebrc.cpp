@@ -97,16 +97,14 @@ inline pair<string_view, string_view> first_line(string_view s)
 // Statistics data structure.
 
 struct stats {
-    void update(int64_t x)
+    stats() = default;
+
+    stats(int64_t x)
+        : min { x }
+        , max { x }
+        , sum { x }
+        , n { 1 }
     {
-        if (x < min) {
-            min = x;
-        }
-        if (x > max) {
-            max = x;
-        }
-        sum += x;
-        n++;
     }
 
     void update(const stats& other)
