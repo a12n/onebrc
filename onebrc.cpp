@@ -200,7 +200,7 @@ using unordered_stats_map = unordered_map<string_view, stats>;
 
 unordered_stats_map process_stats(string_view text)
 {
-    unordered_stats_map result;
+    unordered_stats_map result(10000);
 
     while (!text.empty()) {
         const auto [line, other_text] = first_line(text);
