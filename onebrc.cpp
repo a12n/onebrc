@@ -201,24 +201,21 @@ private:
 
 //----------------------------------------------------------------------------
 
-using stats_table = unordered_map<string_view, stats>;
-using stats_table_future = future<stats_table>;
+using ordered_stats_map = map<string_view, stats>;
+using unordered_stats_map = unordered_map<string_view, stats>;
 
-stats_table process_stats(string_view data)
+unordered_stats_map process_stats(string_view text)
 {
-    stats_table table;
+    unordered_stats_map result;
 
-    // cerr << "process_stats: data " << quoted(data) << ", size " << data.size() << endl;
-    // return table;
-
-    for (string_view text { data }; !text.empty();) {
-        const auto [line, rest] = next_line(text);
-        const auto [name, meas] = record(line);
-        table[name].update(meas);
-        text = rest;
+    while (!text.empty()) {
+        const auto [line, other_text] = next_line(text);
+        const auto [name, value] = record(line);
+        result[name].update(value);
+        text = other_text;
     }
 
-    return table;
+    return result;
 }
 
 } // namespace
@@ -236,29 +233,29 @@ int main(int argc, char** argv)
     const auto n_cpus = thread::hardware_concurrency();
     const auto chunk_size = text.size() / n_cpus;
 
-    stats_table_future results[n_cpus];
+    future<unordered_stats_map> partial[n_cpus];
 
     for (size_t i = 0; i < n_cpus - 1; ++i) {
         const auto chunk_end = text.find_first_of('\n', chunk_size) + 1;
         cerr << "i " << i << ", chunk_end " << chunk_end << endl;
-        results[i] = async(launch::async, process_stats, text.substr(0, chunk_end));
+        partial[i] = async(launch::async, process_stats, text.substr(0, chunk_end));
         text = text.substr(chunk_end);
     }
-    results[n_cpus - 1] = async(launch::async, process_stats, text);
+    partial[n_cpus - 1] = async(launch::async, process_stats, text);
 
-    map<string_view, stats> ordered;
+    ordered_stats_map result;
 
-    for (auto& r : results) {
+    for (auto& r : partial) {
         for (const auto& item : r.get()) {
-            if (auto it = ordered.find(item.first); it != ordered.end()) {
+            if (auto it = result.find(item.first); it != result.end()) {
                 it->second.update(item.second);
             } else {
-                ordered.insert(item);
+                result.insert(item);
             }
         }
     }
 
-    for (const auto& [name, stats] : ordered) {
+    for (const auto& [name, stats] : result) {
         cout << name << '\t' << stats << endl;
     }
 
