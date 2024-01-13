@@ -1,6 +1,3 @@
-#include <cerrno>
-#include <cstdint>
-#include <ostream>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
@@ -8,33 +5,29 @@
 #include <unistd.h>
 
 #include <algorithm>
-#include <array>
+#include <cerrno>
+#include <cstdint>
 #include <cstring>
-#include <fstream>
 #include <future>
 #include <iomanip>
 #include <ios>
 #include <iostream>
 #include <limits>
 #include <map>
+#include <ostream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <thread>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 
-using std::array;
 using std::async;
 using std::cerr;
 using std::cout;
 using std::endl;
 using std::future;
-using std::getline;
-using std::ifstream;
 using std::invalid_argument;
-using std::ios_base;
 using std::launch;
 using std::make_pair;
 using std::map;
@@ -43,15 +36,11 @@ using std::min;
 using std::numeric_limits;
 using std::ostream;
 using std::pair;
-using std::quoted;
 using std::runtime_error;
-using std::stod;
 using std::string;
 using std::string_view;
-using std::swap;
 using std::thread;
 using std::unordered_map;
-using std::vector;
 
 namespace {
 
