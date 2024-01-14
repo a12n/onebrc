@@ -205,6 +205,8 @@ unordered_statistics aggregate(string_view input)
         input = other_lines;
     }
 
+    cerr << "aggregate: load_factor " << result.load_factor() << endl;
+
     return result;
 }
 
