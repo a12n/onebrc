@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <cstring>
 #include <future>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
@@ -22,6 +23,7 @@ using std::async;
 using std::cerr;
 using std::cout;
 using std::endl;
+using std::fixed;
 using std::future;
 using std::invalid_argument;
 using std::launch;
@@ -33,6 +35,7 @@ using std::numeric_limits;
 using std::ostream;
 using std::pair;
 using std::runtime_error;
+using std::setprecision;
 using std::string;
 using std::string_view;
 using std::thread;
@@ -248,6 +251,7 @@ int main(int argc, char** argv)
         }
     }
 
+    cout << fixed << setprecision(1);
     for (const auto& [name, stats] : result) {
         cout << name << '\t' << stats << endl;
     }
