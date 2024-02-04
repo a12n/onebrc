@@ -123,7 +123,7 @@ struct statistics {
 
 ostream& operator<<(ostream& os, const statistics& s)
 {
-    return os << (s.min / 10.0) << '\t' << (s.max / 10.0) << '\t' << (s.sum / 10.0 / s.n);
+    return os << (s.min / 10.0) << '\t' << (s.sum / 10.0 / s.n) << '\t' << (s.max / 10.0);
 }
 
 //----------------------------------------------------------------------------
